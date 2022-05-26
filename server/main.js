@@ -19,15 +19,20 @@
 const express = require('express');
 const session = require('express-session');
 const hbs = require('hbs');
-const auth = require('./libs/auth');
+const path = require('path');
+const auth = require('./auth');
+
 const app = express();
+
+const rootPath = path.join(__dirname, '..');
 
 app.set('view engine', 'html');
 app.engine('html', hbs.__express);
-app.set('views', './views');
+app.set('views', path.join(rootPath, 'web'));
+
 app.use(express.json());
-app.use(express.static('public'));
-app.use(express.static('dist'));
+app.use(express.static(path.join(rootPath, 'web')));
+app.use(express.static(path.join(rootPath, 'dist')));
 app.use(session({
   secret: 'secret', // You should specify a real secret here
   resave: true,

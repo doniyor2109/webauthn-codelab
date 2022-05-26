@@ -33,11 +33,6 @@ app.use(session({
   resave: true,
   saveUninitialized: false,
   proxy: true,
-  cookie:{
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none'
-  }
 }));
 
 app.use((req, res, next) => {
@@ -121,7 +116,7 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
 app.use('/auth', auth);
 
 // listen for req :)
-const port = process.env.GLITCH_DEBUGGER ? null : 8080;
+const port = process.env.GLITCH_DEBUGGER ? null : 80;
 const listener = app.listen(port || process.env.PORT, () => {
   console.log('Your app is listening on port ' + listener.address().port);
 });

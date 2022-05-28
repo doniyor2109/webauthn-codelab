@@ -1,7 +1,7 @@
 module.exports = {
   entry: {
-    'components-bundle': './public/components.js',
-    'styles-bundle': './public/style.scss',
+    'components-bundle': './web/js/components.js',
+    'styles-bundle': './web/style/main.scss',
   },
   mode: 'production',
   output: {

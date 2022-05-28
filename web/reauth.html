@@ -21,7 +21,7 @@
     <link
       id="favicon"
       rel="icon"
-      href="https://glitch.com/edit/favicon-app.ico"
+      href="https://io.google/2022/app/images/favicon-32x32.png"
       type="image/x-icon"
     />
     <meta charset="utf-8" />
@@ -72,74 +72,6 @@
       </form>
     </main>
     <script src="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.js"></script>
-    <script type="module">
-      new mdc.textField.MDCTextField(document.querySelector('.mdc-text-field'));
-      import { _fetch, authenticate } from '/js/client.js';
-      const form = document.querySelector('#form');
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = new FormData(e.target);
-        const cred = {};
-        form.forEach((v, k) => (cred[k] = v));
-        _fetch(e.target.action, cred)
-          .then((user) => {
-            location.href = '/home';
-          })
-          .catch((e) => alert(e));
-      });
-
-      async function showPublicKeyAuthentication() {
-        if (window.PublicKeyCredential) {
-          try {
-            const uvpaa =
-              await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-
-            if (uvpaa) {
-              const res = await _fetch('/auth/getKeys');
-              if (res.credentials.length > 0) {
-                return true;
-              }
-            }
-          } catch (e) {
-            // unregistered user
-          }
-        }
-
-        return false;
-      }
-
-      showPublicKeyAuthentication().then((show) => {
-        if (show) {
-          document.querySelector('#uvpa_available').classList.remove('hidden');
-        } else {
-          form.classList.remove('hidden');
-        }
-      });
-
-      const cancel = document.querySelector('#cancel');
-      cancel.addEventListener('click', (e) => {
-        form.classList.remove('hidden');
-        document.querySelector('#uvpa_available').classList.add('hidden');
-      });
-
-      const button = document.querySelector('#reauth');
-      button.addEventListener('click', (e) => {
-        authenticate()
-          .then((user) => {
-            if (user) {
-              location.href = '/home';
-            } else {
-              throw new Error('User not found.');
-            }
-          })
-          .catch((e) => {
-            console.error(e.message);
-
-            alert('Authentication failed. Use password to sign-in.');
-            form.classList.remove('hidden');
-            document.querySelector('#uvpa_available').classList.add('hidden');
-          });
-      });
-    </script>
+    <script type="module" src="/js/reauth.js"></script>
   </body>
 </html>

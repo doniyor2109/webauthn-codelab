@@ -17,19 +17,19 @@
 
 /** @function base64url */
 
-export const _fetch = async (path, payload = "") => {
+export const _fetch = async (path, payload = '') => {
   const headers = {
-    "X-Requested-With": "XMLHttpRequest"
+    'X-Requested-With': 'XMLHttpRequest',
   };
   if (payload && !(payload instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
+    headers['Content-Type'] = 'application/json';
     payload = JSON.stringify(payload);
   }
   const res = await fetch(path, {
-    method: "POST",
-    credentials: "same-origin",
+    method: 'POST',
+    credentials: 'same-origin',
     headers: headers,
-    body: payload
+    body: payload,
   });
   if (res.status === 200) {
     // Server authentication succeeded
@@ -43,14 +43,14 @@ export const _fetch = async (path, payload = "") => {
 
 export const registerCredential = async () => {
   const opts = {
-    attestation: "none",
+    attestation: 'none',
     authenticatorSelection: {
       // authenticatorAttachment: "cross-platform",
-      userVerification: "prefered",
-      requireResidentKey: false
-    }
+      userVerification: 'prefered',
+      requireResidentKey: false,
+    },
   };
-  const options = await _fetch("/auth/registerRequest", opts);
+  const options = await _fetch('/auth/registerRequest', opts);
 
   options.user.id = base64url.decode(options.user.id);
   options.challenge = base64url.decode(options.challenge);
@@ -62,7 +62,7 @@ export const registerCredential = async () => {
   }
 
   const cred = await navigator.credentials.create({
-    publicKey: options
+    publicKey: options,
   });
 
   const credential = {};
@@ -75,20 +75,20 @@ export const registerCredential = async () => {
     const attestationObject = base64url.encode(cred.response.attestationObject);
     credential.response = {
       clientDataJSON,
-      attestationObject
+      attestationObject,
     };
   }
 
   localStorage.setItem(`credId`, credential.id);
 
-  return await _fetch("/auth/registerResponse", credential);
+  return await _fetch('/auth/registerResponse', credential);
 };
 
 export const authenticate = async () => {
-  const options = await _fetch("/auth/signinRequest", {});
+  const options = await _fetch('/auth/signinRequest', {});
 
   if (options.allowCredentials.length === 0) {
-    console.info("No registered credentials found.");
+    console.info('No registered credentials found.');
     return Promise.resolve(null);
   }
 
@@ -99,7 +99,7 @@ export const authenticate = async () => {
   }
 
   const cred = await navigator.credentials.get({
-    publicKey: options
+    publicKey: options,
   });
 
   const credential = {};
@@ -116,7 +116,7 @@ export const authenticate = async () => {
       clientDataJSON,
       authenticatorData,
       signature,
-      userHandle
+      userHandle,
     };
   }
 
@@ -124,6 +124,18 @@ export const authenticate = async () => {
 };
 
 export const unregisterCredential = async (credId) => {
-  localStorage.removeItem("credId");
+  localStorage.removeItem('credId');
   return _fetch(`/auth/removeKey?credId=${encodeURIComponent(credId)}`);
+};
+
+export const getUserCredentials = () => {
+  return _fetch('/auth/getKeys');
+};
+
+export const loginWithPassword = (values) => {
+  return _fetch('/auth/password', values);
+};
+
+export const sendUsername = (values) => {
+  return _fetch('/auth/username', values);
 };

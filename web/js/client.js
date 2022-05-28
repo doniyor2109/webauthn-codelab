@@ -112,7 +112,7 @@ export const authenticate = async () => {
 
   const credential = {};
   credential.id = cred.id;
-  // credential.type = cred.type;
+  credential.type = cred.type;
   credential.rawId = base64url.encode(cred.rawId);
 
   if (cred.response) {

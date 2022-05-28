@@ -1,7 +1,6 @@
 module.exports = {
   entry: {
     'components-bundle': './web/js/components.js',
-    'styles-bundle': './web/style/main.scss',
   },
   mode: 'production',
   output: {
@@ -20,16 +19,6 @@ module.exports = {
           },
           { loader: 'extract-loader' },
           { loader: 'css-loader' },
-          {
-            loader: 'sass-loader',
-            options: {
-              implementation: require('sass'),
-              webpackImporter: false,
-              sassOptions: {
-                includePaths: ['./node_modules'],
-              },
-            },
-          },
         ],
       },
       {

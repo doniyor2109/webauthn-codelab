@@ -85,15 +85,7 @@ export const registerCredential = async () => {
 };
 
 export const authenticate = async () => {
-  const opts = {};
-
-  let url = "/auth/signinRequest";
-  const credId = localStorage.getItem(`credId`);
-  if (credId) {
-    url += `?credId=${encodeURIComponent(credId)}`;
-  }
-
-  const options = await _fetch(url, opts);
+  const options = await _fetch("/auth/signinRequest", {});
 
   if (options.allowCredentials.length === 0) {
     console.info("No registered credentials found.");

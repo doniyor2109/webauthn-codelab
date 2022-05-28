@@ -387,20 +387,14 @@ router.post("/signinRequest", csrfCheck, async (req, res) => {
       return;
     }
 
-    const credId = req.query.credId;
-
     const userVerification = req.body.userVerification || "required";
 
     const allowCredentials = [];
     for (let cred of user.credentials) {
-      // `credId` is specified and matches
-      if (credId && cred.credId == credId) {
         allowCredentials.push({
           id: cred.credId,
           type: "public-key"
-          //transports: ["internal"]
         });
-      }
     }
 
     const options = fido2.generateAssertionOptions({

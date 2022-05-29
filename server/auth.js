@@ -134,20 +134,6 @@ router.get('/signout', (req, res) => {
 /**
  * Returns a credential id
  * (This server only stores one key per username.)
- * Response format:
- * ```{
- *   username: String,
- *   credentials: [Credential]
- * }```
-
- Credential
- ```
- {
-   credId: String,
-   publicKey: String,
-   aaguid: ??,
-   prevCounter: Int
- };
  ```
  **/
 router.post('/getKeys', csrfCheck, (req, res) => {
@@ -185,35 +171,6 @@ router.get('/resetDB', (req, res) => {
 
 /**
  * Respond with required information to call navigator.credential.create()
- * Input is passed via `req.body` with similar format as output
- * Output format:
- * ```{
-     rp: {
-       id: String,
-       name: String
-     },
-     user: {
-       displayName: String,
-       id: String,
-       name: String
-     },
-     publicKeyCredParams: [{  // @herrjemand
-       type: 'public-key', alg: -7
-     }],
-     timeout: Number,
-     challenge: String,
-     excludeCredentials: [{
-       id: String,
-       type: 'public-key',
-       transports: [('ble'|'nfc'|'usb'|'internal'), ...]
-     }, ...],
-     authenticatorSelection: {
-       authenticatorAttachment: ('platform'|'cross-platform'),
-       requireResidentKey: Boolean,
-       userVerification: ('required'|'preferred'|'discouraged')
-     },
-     attestation: ('none'|'indirect'|'direct')
- * }```
  **/
 router.post('/registerRequest', csrfCheck, sessionCheck, async (req, res) => {
   const username = req.session.username;
@@ -292,18 +249,6 @@ router.post('/registerRequest', csrfCheck, sessionCheck, async (req, res) => {
 
 /**
  * Register user credential.
- * Input format:
- * ```{
-     id: String,
-     type: 'public-key',
-     rawId: String,
-     response: {
-       clientDataJSON: String,
-       attestationObject: String,
-       signature: String,
-       userHandle: String
-     }
- * }```
  **/
 router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
   const username = req.session.username;
@@ -360,18 +305,7 @@ router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
 });
 
 /**
- * Respond with required information to call navigator.credential.get()
- * Input is passed via `req.body` with similar format as output
- * Output format:
- * ```{
-     challenge: String,
-     userVerification: ('required'|'preferred'|'discouraged'),
-     allowCredentials: [{
-       id: String,
-       type: 'public-key',
-       transports: [('ble'|'nfc'|'usb'|'internal'), ...]
-     }, ...]
- * }```
+ * Respond with required information to call navigator.credential.get()`
  **/
 router.post('/signinRequest', csrfCheck, async (req, res) => {
   try {
@@ -386,7 +320,7 @@ router.post('/signinRequest', csrfCheck, async (req, res) => {
       return;
     }
 
-    const userVerification = req.body.userVerification || 'required';
+    const userVerification = req.body.userVerification || 'preferred';
 
     const allowCredentials = [];
     for (let cred of user.credentials) {
@@ -417,18 +351,6 @@ router.post('/signinRequest', csrfCheck, async (req, res) => {
 
 /**
  * Authenticate the user.
- * Input format:
- * ```{
-     id: String,
-     type: 'public-key',
-     rawId: String,
-     response: {
-       clientDataJSON: String,
-       authenticatorData: String,
-       signature: String,
-       userHandle: String
-     }
- * }```
  **/
 router.post('/signinResponse', csrfCheck, async (req, res) => {
   const { body } = req;

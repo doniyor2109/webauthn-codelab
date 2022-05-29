@@ -47,17 +47,3 @@ cancel.addEventListener('click', (e) => {
  * 4. Verify Login for Browser
  * 5. Redirect to /home when success
  * */
-
-const button = document.querySelector('#auth-with-device');
-button.addEventListener('click', async () => {
-  try {
-    const options = await api.getLoginChallenge();
-
-    await verifyLogin(options);
-
-    window.location.href = '/home';
-  } catch (error) {
-    alert('Authentication failed. Use password to sign-in.');
-    hideDeviceLogin();
-  }
-});

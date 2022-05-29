@@ -81,15 +81,3 @@ showCredentials();
  * 3. Verify registration
  * 3. Show credentials
  * */
-const addDeviceButton = document.querySelector('#add-device');
-
-addDeviceButton.addEventListener('click', async () => {
-  try {
-    const options = await getRegisterChallenge();
-
-    await verifyRegistration(options);
-    await showCredentials();
-  } catch (error) {
-    alert(error.message);
-  }
-});

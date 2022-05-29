@@ -1,25 +1,29 @@
-import { registerCredential } from './utils.js';
+import { getRegisterChallenge, verifyRegistration } from './lib/utils.js';
 import {
   html,
   render,
 } from 'https://unpkg.com/lit-html@1.0.0/lit-html.js?module';
-import { getUserCredentials, unregisterCredential } from './api.js';
+import { getUserCredentials, unregisterCredential } from './lib/api.js';
 
-const register = document.querySelector('#register');
-
-if (window.PublicKeyCredential) {
-  PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(
-    (uvpaa) => {
-      if (uvpaa) {
-        register.classList.remove('hidden');
-      } else {
-        document.querySelector('#uvpa_unavailable').classList.remove('hidden');
+const checkDeviceSupport = () => {
+  if (window.PublicKeyCredential) {
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(
+      (uvpaa) => {
+        const addDeviceButton = document.querySelector('#add-device');
+        if (uvpaa) {
+          addDeviceButton?.classList.remove('hidden');
+        } else {
+          addDeviceButton?.classList.add('hidden');
+          document
+            .querySelector('#uvpa_unavailable')
+            .classList.remove('hidden');
+        }
       }
-    }
-  );
-} else {
-  document.querySelector('#uvpa_unavailable').classList.remove('hidden');
-}
+    );
+  } else {
+    document.querySelector('#uvpa_unavailable').classList.remove('hidden');
+  }
+};
 
 const renderCredentialItem = (cred) => {
   return html`<div class="mdc-card credential">
@@ -39,7 +43,7 @@ const renderCredentialItem = (cred) => {
   </div>`;
 };
 
-const getCredentials = async () => {
+const showCredentials = async () => {
   const { credentials } = await getUserCredentials();
   const list = document.querySelector('#list');
 
@@ -47,26 +51,45 @@ const getCredentials = async () => {
     const content = html`${credentials.map(renderCredentialItem)}`;
     render(content, list);
   } else {
-    render(html`<p>No credentials found.</p>`, list);
+    const content = html`<p
+      style="color: white;"
+      class="mdc-typography mdc-typography--body2"
+    >
+      No credentials found.
+    </p>`;
+    render(content, list);
   }
 };
 
 const removeCredential = async (event) => {
   try {
     await unregisterCredential(event.target.id);
-    await getCredentials();
+    await showCredentials();
   } catch (error) {
     alert(error.message);
   }
 };
 
-register.addEventListener('click', async () => {
+checkDeviceSupport();
+showCredentials();
+
+/**
+ * TODO 2
+ *
+ * 1. Get add device button with id #add-device
+ * 2. Register credentials
+ * 3. Verify registration
+ * 3. Show credentials
+ * */
+const addDeviceButton = document.querySelector('#add-device');
+
+addDeviceButton.addEventListener('click', async () => {
   try {
-    await registerCredential();
-    await getCredentials();
+    const options = await getRegisterChallenge();
+
+    await verifyRegistration(options);
+    await showCredentials();
   } catch (error) {
     alert(error.message);
   }
 });
-
-getCredentials();

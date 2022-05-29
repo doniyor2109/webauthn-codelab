@@ -15,14 +15,9 @@
  * limitations under the License
  */
 
-import {
-  verifyLogin,
-  getLoginChallenge,
-  getRegisterChallenge,
-  verifyRegistration,
-} from './api.js';
+import * as api from './api.js';
 
-export const registerCredential = async () => {
+export const getRegisterChallenge = async () => {
   const opts = {
     attestation: 'none',
     authenticatorSelection: {
@@ -30,8 +25,10 @@ export const registerCredential = async () => {
       requireResidentKey: false,
     },
   };
-  const options = await getRegisterChallenge(opts);
+  return await api.getRegisterChallenge(opts);
+};
 
+export const verifyRegistration = async (options) => {
   options.user.id = base64url.decode(options.user.id);
   options.challenge = base64url.decode(options.challenge);
 
@@ -64,15 +61,12 @@ export const registerCredential = async () => {
     };
   }
 
-  return await verifyRegistration(credentialPayload);
+  return await api.verifyRegistration(credentialPayload);
 };
 
-export const authenticate = async () => {
-  const options = await getLoginChallenge();
-
+export const verifyLogin = async (options) => {
   if (options.allowCredentials.length === 0) {
-    console.info('No registered credentials found.');
-    return Promise.resolve(null);
+    return new Error('No registered credentials found.');
   }
 
   options.challenge = base64url.decode(options.challenge);
@@ -103,5 +97,29 @@ export const authenticate = async () => {
     };
   }
 
-  return await verifyLogin(credential);
+  return await api.verifyLogin(credential);
 };
+
+export async function showPublicKeyAuthentication() {
+  if (!window.PublicKeyCredential) {
+    return false;
+  }
+
+  const uvpaa =
+    await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+
+  if (!uvpaa) {
+    return false;
+  }
+
+  try {
+    const res = await api.getUserCredentials();
+    if (res.credentials.length === 0) {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+
+  return true;
+}

@@ -1,45 +1,13 @@
-import { authenticate } from './utils.js';
-import { getUserCredentials, loginWithPassword } from './api.js';
+import { showPublicKeyAuthentication, verifyLogin } from './lib/utils.js';
+import * as api from './lib/api.js';
+
 const form = document.querySelector('#form');
 
 new mdc.textField.MDCTextField(document.querySelector('.mdc-text-field'));
 
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const form = new FormData(event.target);
-  const value = Object.fromEntries(form.entries());
-
-  try {
-    await loginWithPassword(value);
-    window.location.href = '/home';
-  } catch (error) {
-    alert(error.message);
-  }
-});
-
-async function showPublicKeyAuthentication() {
-  if (!window.PublicKeyCredential) {
-    return false;
-  }
-
-  const uvpaa =
-    await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-
-  if (!uvpaa) {
-    return false;
-  }
-
-  try {
-    const res = await getUserCredentials();
-    if (res.credentials.length === 0) {
-      return false;
-    }
-  } catch (error) {
-    return false;
-  }
-
-  return true;
+function hideDeviceLogin() {
+  form.classList.remove('hidden');
+  document.querySelector('#uvpa_available').classList.add('hidden');
 }
 
 showPublicKeyAuthentication().then((show) => {
@@ -50,25 +18,46 @@ showPublicKeyAuthentication().then((show) => {
   }
 });
 
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const form = new FormData(event.target);
+  const value = Object.fromEntries(form.entries());
+
+  try {
+    await api.loginWithPassword(value);
+    window.location.href = '/home';
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
 const cancel = document.querySelector('#cancel');
 cancel.addEventListener('click', (e) => {
   form.classList.remove('hidden');
   document.querySelector('#uvpa_available').classList.add('hidden');
 });
 
-const button = document.querySelector('#auth');
+/**
+ * TODO 4
+ *
+ * 1. Get add button with id #auth-with-device
+ * 2. Add click handler
+ * 3. Get challenge from Server
+ * 4. Verify Login for Browser
+ * 5. Redirect to /home when success
+ * */
+
+const button = document.querySelector('#auth-with-device');
 button.addEventListener('click', async () => {
   try {
-    const user = await authenticate();
+    const options = await api.getLoginChallenge();
 
-    if (user) {
-      location.href = '/home';
-    } else {
-      throw new Error('User not found.');
-    }
+    await verifyLogin(options);
+
+    window.location.href = '/home';
   } catch (error) {
     alert('Authentication failed. Use password to sign-in.');
-    form.classList.remove('hidden');
-    document.querySelector('#uvpa_available').classList.add('hidden');
+    hideDeviceLogin();
   }
 });

@@ -63,7 +63,7 @@ mwc-button > a {
   text-overflow: ellipsis;
 }
 
-#register {
+#add-device {
   --mdc-theme-primary: blue;
 }
 

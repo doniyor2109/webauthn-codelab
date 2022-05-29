@@ -32,14 +32,23 @@
       rel="stylesheet"
       href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
     <script src="components-bundle.js"></script>
   </head>
   <body class="mdc-typography">
     <mwc-top-app-bar-fixed>
+      <img
+        slot="navigationIcon"
+        src="https://io.google/2022/app/images/Logo-dark.svg"
+        alt=""
+      />
       <span slot="title">WebAuthn codelab</span>
     </mwc-top-app-bar-fixed>
     <main class="content">
-      <h2>Login with a random username</h2>
+      <h2>Login</h2>
       <form id="form" method="POST" action="/auth/username">
         <div class="mdc-text-field mdc-text-field--filled">
           <span class="mdc-text-field__ripple"></span>
@@ -52,11 +61,16 @@
           />
           <span class="mdc-line-ripple"></span>
         </div>
-        <input
-          type="submit"
-          class="mdc-button mdc-button--raised"
-          value="Next"
-        />
+        <div>
+          <button
+            type="submit"
+            class="mdc-button mdc-button--raised"
+            value="Next"
+            style="width: 100%; margin-top: 10px"
+          >
+            Next
+          </button>
+        </div>
       </form>
       <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
       <script type="module" src="js/index.js"></script>

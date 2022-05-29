@@ -59,7 +59,7 @@ cancel.addEventListener('click', (e) => {
   document.querySelector('#uvpa_available').classList.add('hidden');
 });
 
-const button = document.querySelector('#reauth');
+const button = document.querySelector('#auth');
 button.addEventListener('click', async () => {
   try {
     const user = await authenticate();
@@ -70,8 +70,6 @@ button.addEventListener('click', async () => {
       throw new Error('User not found.');
     }
   } catch (error) {
-    console.error(error.message);
-
     alert('Authentication failed. Use password to sign-in.');
     form.classList.remove('hidden');
     document.querySelector('#uvpa_available').classList.add('hidden');

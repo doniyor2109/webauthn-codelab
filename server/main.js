@@ -66,8 +66,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   // Check session
   if (req.session.username) {
-    // If user is signed in, redirect to `/reauth`.
-    res.redirect(307, '/reauth');
+    // If user is signed in, redirect to `/auth`.
+    res.redirect(307, '/auth');
     return;
   }
   // If user is not signed in, show `index.html` with id/password form.
@@ -91,16 +91,16 @@ app.get('/home', (req, res) => {
   res.render('home.html', { username: req.session.username });
 });
 
-app.get('/reauth', (req, res) => {
+app.get('/auth', (req, res) => {
   const username = req.session.username;
   if (!username) {
     res.redirect(302, '/');
     return;
   }
-  // Show `reauth.html`.
+  // Show `auth.html`.
   // User is supposed to enter a password (which will be ignored)
   // Make XHR POST to `/signin`
-  res.render('reauth.html', { username: username });
+  res.render('auth.html', { username: username });
 });
 
 app.get('/.well-known/assetlinks.json', (req, res) => {

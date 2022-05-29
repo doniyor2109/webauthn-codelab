@@ -81,7 +81,7 @@ router.post('/username', (req, res) => {
   const username = req.body.username;
   // Only check username, no need to check password as this is a mock
   if (!username || !/[a-zA-Z0-9-_]+/.test(username)) {
-    res.status(400).send({ error: 'Bad request' });
+    res.status(400).send({ error: 'Enter valid username' });
     return;
   } else {
     // See if account already exists
@@ -150,7 +150,7 @@ router.get('/signout', (req, res) => {
  };
  ```
  **/
-router.post('/getKeys', csrfCheck, sessionCheck, (req, res) => {
+router.post('/getKeys', csrfCheck, (req, res) => {
   const user = db.get('users').find({ username: req.session.username }).value();
   res.json(user || {});
 });
@@ -310,8 +310,6 @@ router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
   const expectedChallenge = req.session.challenge;
   const expectedOrigin = getOrigin(req.get('User-Agent'));
   const expectedRPID = process.env.HOSTNAME;
-  const credId = req.body.id;
-  const type = req.body.type;
 
   try {
     const { body } = req;
@@ -326,7 +324,7 @@ router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
     const { verified, authenticatorInfo } = verification;
 
     if (!verified) {
-      throw 'User verification failed.';
+      throw new Error('User verification failed.');
     }
 
     const { base64PublicKey, base64CredentialID, counter } = authenticatorInfo;
@@ -344,6 +342,7 @@ router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
       user.credentials.push({
         publicKey: base64PublicKey,
         credId: base64CredentialID,
+        transports: body.transports,
         prevCounter: counter,
       });
     }
@@ -354,9 +353,9 @@ router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
 
     // Respond with user info
     res.json(user);
-  } catch (e) {
+  } catch (error) {
     delete req.session.challenge;
-    res.status(400).send({ error: e.message });
+    res.status(400).send({ error: error.message });
   }
 });
 
@@ -394,6 +393,7 @@ router.post('/signinRequest', csrfCheck, async (req, res) => {
       allowCredentials.push({
         id: cred.credId,
         type: 'public-key',
+        transports: cred.transports,
       });
     }
 
@@ -410,8 +410,8 @@ router.post('/signinRequest', csrfCheck, async (req, res) => {
     req.session.challenge = options.challenge;
 
     res.json(options);
-  } catch (e) {
-    res.status(400).json({ error: e });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -443,7 +443,7 @@ router.post('/signinResponse', csrfCheck, async (req, res) => {
 
   try {
     if (!credential) {
-      throw 'Authenticating credential not found.';
+      throw new Error('Authenticating credential not found.');
     }
 
     const verification = fido2.verifyAssertionResponse({

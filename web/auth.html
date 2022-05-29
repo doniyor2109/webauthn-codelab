@@ -30,6 +30,10 @@
     <link rel="stylesheet" href="/style/main.css" />
     <link
       rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link
+      rel="stylesheet"
       href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css"
     />
     <script src="https://cdn.jsdelivr.net/gh/herrjemand/Base64URL-ArrayBuffer@latest/lib/base64url-arraybuffer.js"></script>
@@ -37,24 +41,34 @@
   </head>
   <body class="mdc-typography">
     <mwc-top-app-bar-fixed>
+      <img
+        slot="navigationIcon"
+        src="https://io.google/2022/app/images/Logo-dark.svg"
+        alt=""
+      />
       <span slot="title">WebAuthn codelab</span>
     </mwc-top-app-bar-fixed>
     <main class="content">
       <div id="uvpa_available" class="hidden">
-        <h2>Verify your identity</h2>
+        <h2 align="center" class="mdc-typography mdc-typography--headline4">
+          Verify your identity
+        </h2>
         <div>
-          <mwc-button id="reauth" raised>Authenticate</mwc-button>
+          <mwc-button id="auth" raised>Authenticate with Device</mwc-button>
         </div>
         <div>
-          <mwc-button id="cancel">Sign-in with password</mwc-button>
+          <mwc-button id="cancel" contained raised
+            >Sign-in with password</mwc-button
+          >
         </div>
       </div>
+
       <form id="form" method="POST" action="/auth/password" class="hidden">
         <h2>Enter a password</h2>
         <input type="hidden" name="username" value="{{username}}" />
-        <div class="mdc-text-field mdc-text-field--filled">
+        <div class="mdc-text-field mdc-text-field--filled" style="width: 100%">
           <span class="mdc-text-field__ripple"></span>
-          <label class="mdc-floating-label" id="password-label">password</label>
+          <label class="mdc-floating-label" id="password-label">Password</label>
           <input
             type="password"
             class="mdc-text-field__input"
@@ -63,15 +77,21 @@
           />
           <span class="mdc-line-ripple"></span>
         </div>
-        <input
-          type="submit"
-          class="mdc-button mdc-button--raised"
-          value="Sign-In"
-        />
-        <p class="instructions">password will be ignored in this demo.</p>
+        <div>
+          <input
+            type="submit"
+            class="mdc-button mdc-button--raised"
+            value="Sign-In"
+            style="width: 100%; margin-top: 10px"
+          />
+        </div>
+        <p class="mdc-typography mdc-typography--caption instructions">
+          password will be ignored in this demo
+        </p>
       </form>
     </main>
+
     <script src="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.js"></script>
-    <script type="module" src="/js/reauth.js"></script>
+    <script type="module" src="/js/auth.js"></script>
   </body>
 </html>

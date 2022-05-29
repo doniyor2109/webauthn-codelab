@@ -11,7 +11,7 @@ form.addEventListener('submit', async (event) => {
 
   try {
     await sendUsername(value);
-    window.location.href = '/reauth';
+    window.location.href = '/auth';
   } catch (error) {
     alert(error.message);
   }

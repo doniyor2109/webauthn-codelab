@@ -26,7 +26,13 @@ if (window.PublicKeyCredential) {
 
 const renderCredentialItem = (cred) => {
   return html`<div class="mdc-card credential">
-    <span class="mdc-typography mdc-typography--body2">${cred.credId}</span>
+    <span class="mdc-typography mdc-typography--body2">Device Type:</span>
+    <pre class="public-key">${cred.transports}</pre>
+
+    <span class="mdc-typography mdc-typography--body2">Credential ID:</span>
+    <pre class="public-key">${cred.credId}</pre>
+
+    <span class="mdc-typography mdc-typography--body2">Public Key:</span>
     <pre class="public-key">${cred.publicKey}</pre>
     <div class="mdc-card__actions">
       <mwc-button id="${cred.credId}" @click="${removeCredential}" raised
@@ -37,11 +43,11 @@ const renderCredentialItem = (cred) => {
 };
 
 const getCredentials = async () => {
-  const res = await getUserCredentials();
+  const { credentials } = await getUserCredentials();
   const list = document.querySelector('#list');
 
-  if (res.credentials.length > 0) {
-    const content = html`${res.credentials.map(renderCredentialItem)}`;
+  if (credentials.length > 0) {
+    const content = html`${credentials.map(renderCredentialItem)}`;
     render(content, list);
   } else {
     render(html`<p>No credentials found.</p>`, list);

@@ -31,6 +31,10 @@ body {
 
 .content {
   margin: 0 16px 20px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .instructions {
@@ -51,7 +55,7 @@ body {
 
 mwc-button > a {
   text-decoration: none;
-  color: inherit;
+  color: white;
 }
 
 .public-key {
@@ -60,7 +64,7 @@ mwc-button > a {
 }
 
 #register {
-  --mdc-theme-primary: red;
+  --mdc-theme-primary: blue;
 }
 
 #uvpa_available div {
@@ -71,4 +75,22 @@ mwc-button > a {
 
 #uvpa_unavailable {
   color: red;
+}
+
+
+html {
+  background-color: #121212;
+
+  --mdc-theme-primary: #121212 !important;
+  --mdc-theme-on-primary: #fff !important;
+  --mdc-theme-text-primary-on-background: #fff !important;;
+}
+
+mwc-button, .mdc-button {
+  --mdc-theme-primary: #8ab4f8 !important;
+  --mdc-theme-on-primary: #121212 !important;
+}
+
+h2, h3 {
+  color: white;
 }

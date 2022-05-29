@@ -43,11 +43,21 @@
   </head>
   <body class="mdc-typography">
     <mwc-top-app-bar-fixed>
+      <img
+        slot="navigationIcon"
+        src="https://io.google/2022/app/images/Logo-dark.svg"
+        alt=""
+      />
       <span slot="title">WebAuthn codelab</span>
+      <mwc-button slot="actionItems"
+        ><a href="/auth/signout">Sign out</a></mwc-button
+      >
     </mwc-top-app-bar-fixed>
 
     <main class="content">
-      <h2>Welcome, {{username}}!</h2>
+      <h2 class="mdc-typography mdc-typography--headline2">
+        Welcome, {{username}}!
+      </h2>
       <p id="uvpa_unavailable" class="hidden">
         This device does not support User Verifying Platform Authenticator. You
         can't register a credential.
@@ -61,8 +71,6 @@
       <mwc-button id="register" class="hidden" icon="fingerprint" raised
         >Add a credential</mwc-button
       >
-      <mwc-button raised><a href="/reauth">Try reauth</a></mwc-button>
-      <mwc-button><a href="/auth/signout">Sign out</a></mwc-button>
     </main>
     <script type="module" src="/js/home.js"></script>
   </body>

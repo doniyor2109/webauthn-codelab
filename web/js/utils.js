@@ -37,7 +37,7 @@ export const _fetch = async (path, payload = '') => {
   } else {
     // Server authentication failed
     const result = await res.json();
-    throw result.error;
+    throw new Error(result.error);
   }
 };
 
@@ -61,27 +61,30 @@ export const registerCredential = async () => {
     }
   }
 
-  const cred = await navigator.credentials.create({
+  const credential = await navigator.credentials.create({
     publicKey: options,
   });
+  const transports = credential.response.getTransports();
 
-  const credential = {};
-  credential.id = cred.id;
-  credential.rawId = base64url.encode(cred.rawId);
-  credential.type = cred.type;
+  const credentialPayload = {
+    id: credential.id,
+    transports,
+    rawId: base64url.encode(credential.rawId),
+    type: credential.type,
+  };
 
-  if (cred.response) {
-    const clientDataJSON = base64url.encode(cred.response.clientDataJSON);
-    const attestationObject = base64url.encode(cred.response.attestationObject);
-    credential.response = {
+  if (credential.response) {
+    const clientDataJSON = base64url.encode(credential.response.clientDataJSON);
+    const attestationObject = base64url.encode(
+      credential.response.attestationObject
+    );
+    credentialPayload.response = {
       clientDataJSON,
       attestationObject,
     };
   }
 
-  localStorage.setItem(`credId`, credential.id);
-
-  return await _fetch('/auth/registerResponse', credential);
+  return await _fetch('/auth/registerResponse', credentialPayload);
 };
 
 export const authenticate = async () => {
@@ -124,7 +127,6 @@ export const authenticate = async () => {
 };
 
 export const unregisterCredential = async (credId) => {
-  localStorage.removeItem('credId');
   return _fetch(`/auth/removeKey?credId=${encodeURIComponent(credId)}`);
 };
 

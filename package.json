@@ -1,14 +1,15 @@
 {
-  "name": "webauthn-codelab",
+  "name": "webauthn-codelab-google-io",
   "version": "0.0.3",
-  "description": "Your First WebAuthn App",
+  "description": "",
   "main": "server/main.js",
   "scripts": {
     "build": "webpack -p",
     "prestart": "yarn build",
     "server": "node server/main.js",
     "start": "yarn server",
-    "dev": "webpack -w & yarn server"
+    "prevdev": "yarn build",
+    "dev": "yarn server"
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -39,12 +40,7 @@
     "url": "https://github.com/googlecodelabs/fido2-codelab"
   },
   "license": "Apache-2.0",
-  "keywords": [
-    "node",
-    "express",
-    "webauthn",
-    "fido2"
-  ],
+  "keywords": [],
   "devDependencies": {
     "prettier": "^2.6.2"
   }

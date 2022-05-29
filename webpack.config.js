@@ -1,6 +1,6 @@
 module.exports = {
   entry: {
-    'components-bundle': './web/js/components.js',
+    'components-bundle': './web/js/lib/components.js',
   },
   mode: 'production',
   output: {

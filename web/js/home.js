@@ -1,12 +1,9 @@
-import {
-  getUserCredentials,
-  registerCredential,
-  unregisterCredential,
-} from '/js/utils.js';
+import { registerCredential } from './utils.js';
 import {
   html,
   render,
 } from 'https://unpkg.com/lit-html@1.0.0/lit-html.js?module';
+import { getUserCredentials, unregisterCredential } from './api.js';
 
 const register = document.querySelector('#register');
 

@@ -15,31 +15,12 @@
  * limitations under the License
  */
 
-/** @function base64url */
-
-export const _fetch = async (path, payload = '') => {
-  const headers = {
-    'X-Requested-With': 'XMLHttpRequest',
-  };
-  if (payload && !(payload instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-    payload = JSON.stringify(payload);
-  }
-  const res = await fetch(path, {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: headers,
-    body: payload,
-  });
-  if (res.status === 200) {
-    // Server authentication succeeded
-    return res.json();
-  } else {
-    // Server authentication failed
-    const result = await res.json();
-    throw new Error(result.error);
-  }
-};
+import {
+  verifyLogin,
+  getLoginChallenge,
+  getRegisterChallenge,
+  verifyRegistration,
+} from './api.js';
 
 export const registerCredential = async () => {
   const opts = {
@@ -50,7 +31,7 @@ export const registerCredential = async () => {
       requireResidentKey: false,
     },
   };
-  const options = await _fetch('/auth/registerRequest', opts);
+  const options = await getRegisterChallenge(opts);
 
   options.user.id = base64url.decode(options.user.id);
   options.challenge = base64url.decode(options.challenge);
@@ -84,11 +65,11 @@ export const registerCredential = async () => {
     };
   }
 
-  return await _fetch('/auth/registerResponse', credentialPayload);
+  return await verifyRegistration(credentialPayload);
 };
 
 export const authenticate = async () => {
-  const options = await _fetch('/auth/signinRequest', {});
+  const options = await getLoginChallenge();
 
   if (options.allowCredentials.length === 0) {
     console.info('No registered credentials found.');
@@ -123,21 +104,5 @@ export const authenticate = async () => {
     };
   }
 
-  return await _fetch(`/auth/signinResponse`, credential);
-};
-
-export const unregisterCredential = async (credId) => {
-  return _fetch(`/auth/removeKey?credId=${encodeURIComponent(credId)}`);
-};
-
-export const getUserCredentials = () => {
-  return _fetch('/auth/getKeys');
-};
-
-export const loginWithPassword = (values) => {
-  return _fetch('/auth/password', values);
-};
-
-export const sendUsername = (values) => {
-  return _fetch('/auth/username', values);
+  return await verifyLogin(credential);
 };

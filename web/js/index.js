@@ -1,4 +1,4 @@
-import { sendUsername } from '/js/utils.js';
+import { sendUsername } from './api.js';
 
 new mdc.textField.MDCTextField(document.querySelector('.mdc-text-field'));
 const form = document.querySelector('#form');

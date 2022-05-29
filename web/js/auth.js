@@ -1,8 +1,5 @@
-import {
-  authenticate,
-  loginWithPassword,
-  getUserCredentials,
-} from '/js/utils.js';
+import { authenticate } from './utils.js';
+import { getUserCredentials, loginWithPassword } from './api.js';
 const form = document.querySelector('#form');
 
 new mdc.textField.MDCTextField(document.querySelector('.mdc-text-field'));

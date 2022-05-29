@@ -1,7 +1,7 @@
 import { getRegisterChallenge, verifyRegistration } from './lib/utils.js';
 import {
   html,
-  render,
+  render
 } from 'https://unpkg.com/lit-html@1.0.0/lit-html.js?module';
 import { getUserCredentials, unregisterCredential } from './lib/api.js';
 
@@ -13,7 +13,6 @@ const checkDeviceSupport = () => {
         if (uvpaa) {
           addDeviceButton?.classList.remove('hidden');
         } else {
-          addDeviceButton?.classList.add('hidden');
           document
             .querySelector('#uvpa_unavailable')
             .classList.remove('hidden');

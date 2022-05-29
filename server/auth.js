@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const crypto = require("crypto");
-const fido2 = require("@simplewebauthn/server");
-const base64url = require("base64url");
-const fs = require("fs");
-const low = require("lowdb");
+const crypto = require('crypto');
+const fido2 = require('@simplewebauthn/server');
+const base64url = require('base64url');
+const fs = require('fs');
+const low = require('lowdb');
 
-if (!fs.existsSync("./.data")) {
-  fs.mkdirSync("./.data");
+if (!fs.existsSync('./.data')) {
+  fs.mkdirSync('./.data');
 }
 
-const FileSync = require("lowdb/adapters/FileSync");
-const adapter = new FileSync(".data/db.json");
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('.data/db.json');
 const db = low(adapter);
 
 router.use(express.json());
 
-const RP_NAME = "WebAuthn Codelab";
+const RP_NAME = 'WebAuthn Codelab';
 const TIMEOUT = 30 * 1000 * 60;
 
 db.defaults({
-  users: []
+  users: [],
 }).write();
 
 const csrfCheck = (req, res, next) => {
-  if (req.header("X-Requested-With") != "XMLHttpRequest") {
-    res.status(400).json({ error: "invalid access." });
+  if (req.header('X-Requested-With') != 'XMLHttpRequest') {
+    res.status(400).json({ error: 'invalid access.' });
     return;
   }
   next();
@@ -52,17 +52,17 @@ const csrfCheck = (req, res, next) => {
  * If the session doesn't contain `signed-in`, consider the user is not authenticated.
  **/
 const sessionCheck = (req, res, next) => {
-  if (!req.session["signed-in"]) {
-    res.status(401).json({ error: "not signed in." });
+  if (!req.session['signed-in']) {
+    res.status(401).json({ error: 'not signed in.' });
     return;
   }
   next();
 };
 
 const getOrigin = (userAgent) => {
-  let origin = "";
-  if (userAgent.indexOf("okhttp") === 0) {
-    const octArray = process.env.ANDROID_SHA256HASH.split(":").map((h) =>
+  let origin = '';
+  if (userAgent.indexOf('okhttp') === 0) {
+    const octArray = process.env.ANDROID_SHA256HASH.split(':').map((h) =>
       parseInt(h, 16)
     );
     const androidHash = base64url.encode(octArray);
@@ -77,23 +77,23 @@ const getOrigin = (userAgent) => {
  * Check username, create a new account if it doesn't exist.
  * Set a `username` in the session.
  **/
-router.post("/username", (req, res) => {
+router.post('/username', (req, res) => {
   const username = req.body.username;
   // Only check username, no need to check password as this is a mock
   if (!username || !/[a-zA-Z0-9-_]+/.test(username)) {
-    res.status(400).send({ error: "Bad request" });
+    res.status(400).send({ error: 'Bad request' });
     return;
   } else {
     // See if account already exists
-    let user = db.get("users").find({ username: username }).value();
+    let user = db.get('users').find({ username: username }).value();
     // If user entry is not created yet, create one
     if (!user) {
       user = {
         username: username,
         id: base64url.encode(crypto.randomBytes(32)),
-        credentials: []
+        credentials: [],
       };
-      db.get("users").push(user).write();
+      db.get('users').push(user).write();
     }
     // Set username in the session
     req.session.username = username;
@@ -107,28 +107,28 @@ router.post("/username", (req, res) => {
  * No preceding registration required.
  * This only checks if `username` is not empty string and ignores the password.
  **/
-router.post("/password", (req, res) => {
+router.post('/password', (req, res) => {
   if (!req.body.password) {
-    res.status(401).json({ error: "Enter at least one random letter." });
+    res.status(401).json({ error: 'Enter at least one random letter.' });
     return;
   }
-  const user = db.get("users").find({ username: req.session.username }).value();
+  const user = db.get('users').find({ username: req.session.username }).value();
 
   if (!user) {
-    res.status(401).json({ error: "Enter username first." });
+    res.status(401).json({ error: 'Enter username first.' });
     return;
   }
 
-  req.session["signed-in"] = "yes";
+  req.session['signed-in'] = 'yes';
   res.json(user);
 });
 
-router.get("/signout", (req, res) => {
+router.get('/signout', (req, res) => {
   // Remove the session
   delete req.session.username;
-  delete req.session["signed-in"];
+  delete req.session['signed-in'];
   // Redirect to `/`
-  res.redirect(302, "/");
+  res.redirect(302, '/');
 });
 
 /**
@@ -150,8 +150,8 @@ router.get("/signout", (req, res) => {
  };
  ```
  **/
-router.post("/getKeys", csrfCheck, sessionCheck, (req, res) => {
-  const user = db.get("users").find({ username: req.session.username }).value();
+router.post('/getKeys', csrfCheck, sessionCheck, (req, res) => {
+  const user = db.get('users').find({ username: req.session.username }).value();
   res.json(user || {});
 });
 
@@ -159,17 +159,17 @@ router.post("/getKeys", csrfCheck, sessionCheck, (req, res) => {
  * Removes a credential id attached to the user
  * Responds with empty JSON `{}`
  **/
-router.post("/removeKey", csrfCheck, sessionCheck, (req, res) => {
+router.post('/removeKey', csrfCheck, sessionCheck, (req, res) => {
   const credId = req.query.credId;
   const username = req.session.username;
-  const user = db.get("users").find({ username: username }).value();
+  const user = db.get('users').find({ username: username }).value();
 
   const newCreds = user.credentials.filter((cred) => {
     // Leave credential ids that do not match
     return cred.credId !== credId;
   });
 
-  db.get("users")
+  db.get('users')
     .find({ username: username })
     .assign({ credentials: newCreds })
     .write();
@@ -177,9 +177,9 @@ router.post("/removeKey", csrfCheck, sessionCheck, (req, res) => {
   res.json({});
 });
 
-router.get("/resetDB", (req, res) => {
-  db.set("users", []).write();
-  const users = db.get("users").value();
+router.get('/resetDB', (req, res) => {
+  db.set('users', []).write();
+  const users = db.get('users').value();
   res.json(users);
 });
 
@@ -215,16 +215,16 @@ router.get("/resetDB", (req, res) => {
      attestation: ('none'|'indirect'|'direct')
  * }```
  **/
-router.post("/registerRequest", csrfCheck, sessionCheck, async (req, res) => {
+router.post('/registerRequest', csrfCheck, sessionCheck, async (req, res) => {
   const username = req.session.username;
-  const user = db.get("users").find({ username: username }).value();
+  const user = db.get('users').find({ username: username }).value();
   try {
     const excludeCredentials = [];
     if (user.credentials.length > 0) {
       for (let cred of user.credentials) {
         excludeCredentials.push({
           id: cred.credId,
-          type: "public-key"
+          type: 'public-key',
           // transports: ["internal"]
         });
       }
@@ -233,7 +233,7 @@ router.post("/registerRequest", csrfCheck, sessionCheck, async (req, res) => {
     // const params = [-7, -35, -36, -257, -258, -259, -37, -38, -39, -8];
     const params = [-7, -257];
     for (let param of params) {
-      pubKeyCredParams.push({ type: "public-key", alg: param });
+      pubKeyCredParams.push({ type: 'public-key', alg: param });
     }
     const as = {}; // authenticatorSelection
     const aa = req.body.authenticatorSelection.authenticatorAttachment;
@@ -242,24 +242,24 @@ router.post("/registerRequest", csrfCheck, sessionCheck, async (req, res) => {
     const cp = req.body.attestation; // attestationConveyancePreference
     let asFlag = false;
     let authenticatorSelection;
-    let attestation = "none";
+    let attestation = 'none';
 
-    if (aa && (aa == "platform" || aa == "cross-platform")) {
+    if (aa && (aa == 'platform' || aa == 'cross-platform')) {
       asFlag = true;
       as.authenticatorAttachment = aa;
     }
-    if (rr && typeof rr == "boolean") {
+    if (rr && typeof rr == 'boolean') {
       asFlag = true;
       as.requireResidentKey = rr;
     }
-    if (uv && (uv == "required" || uv == "preferred" || uv == "discouraged")) {
+    if (uv && (uv == 'required' || uv == 'preferred' || uv == 'discouraged')) {
       asFlag = true;
       as.userVerification = uv;
     }
     if (asFlag) {
       authenticatorSelection = as;
     }
-    if (cp && (cp == "none" || cp == "indirect" || cp == "direct")) {
+    if (cp && (cp == 'none' || cp == 'indirect' || cp == 'direct')) {
       attestation = cp;
     }
 
@@ -273,7 +273,7 @@ router.post("/registerRequest", csrfCheck, sessionCheck, async (req, res) => {
       attestationType: attestation,
       // Prevent users from re-registering existing authenticators
       excludeCredentials,
-      authenticatorSelection
+      authenticatorSelection,
     });
 
     req.session.challenge = options.challenge;
@@ -281,7 +281,7 @@ router.post("/registerRequest", csrfCheck, sessionCheck, async (req, res) => {
     // Temporary hack until SimpleWebAuthn supports `pubKeyCredParams`
     options.pubKeyCredParams = [];
     for (let param of params) {
-      options.pubKeyCredParams.push({ type: "public-key", alg: param });
+      options.pubKeyCredParams.push({ type: 'public-key', alg: param });
     }
 
     res.json(options);
@@ -305,10 +305,10 @@ router.post("/registerRequest", csrfCheck, sessionCheck, async (req, res) => {
      }
  * }```
  **/
-router.post("/registerResponse", csrfCheck, sessionCheck, async (req, res) => {
+router.post('/registerResponse', csrfCheck, sessionCheck, async (req, res) => {
   const username = req.session.username;
   const expectedChallenge = req.session.challenge;
-  const expectedOrigin = getOrigin(req.get("User-Agent"));
+  const expectedOrigin = getOrigin(req.get('User-Agent'));
   const expectedRPID = process.env.HOSTNAME;
   const credId = req.body.id;
   const type = req.body.type;
@@ -320,18 +320,18 @@ router.post("/registerResponse", csrfCheck, sessionCheck, async (req, res) => {
       credential: body,
       expectedChallenge,
       expectedOrigin,
-      expectedRPID
+      expectedRPID,
     });
 
     const { verified, authenticatorInfo } = verification;
 
     if (!verified) {
-      throw "User verification failed.";
+      throw 'User verification failed.';
     }
 
     const { base64PublicKey, base64CredentialID, counter } = authenticatorInfo;
 
-    const user = db.get("users").find({ username: username }).value();
+    const user = db.get('users').find({ username: username }).value();
 
     const existingCred = user.credentials.find(
       (cred) => cred.credID === base64CredentialID
@@ -344,11 +344,11 @@ router.post("/registerResponse", csrfCheck, sessionCheck, async (req, res) => {
       user.credentials.push({
         publicKey: base64PublicKey,
         credId: base64CredentialID,
-        prevCounter: counter
+        prevCounter: counter,
       });
     }
 
-    db.get("users").find({ username: username }).assign(user).write();
+    db.get('users').find({ username: username }).assign(user).write();
 
     delete req.session.challenge;
 
@@ -374,27 +374,27 @@ router.post("/registerResponse", csrfCheck, sessionCheck, async (req, res) => {
      }, ...]
  * }```
  **/
-router.post("/signinRequest", csrfCheck, async (req, res) => {
+router.post('/signinRequest', csrfCheck, async (req, res) => {
   try {
     const user = db
-      .get("users")
+      .get('users')
       .find({ username: req.session.username })
       .value();
 
     if (!user) {
       // Send empty response if user is not registered yet.
-      res.json({ error: "User not found." });
+      res.json({ error: 'User not found.' });
       return;
     }
 
-    const userVerification = req.body.userVerification || "required";
+    const userVerification = req.body.userVerification || 'required';
 
     const allowCredentials = [];
     for (let cred of user.credentials) {
-        allowCredentials.push({
-          id: cred.credId,
-          type: "public-key"
-        });
+      allowCredentials.push({
+        id: cred.credId,
+        type: 'public-key',
+      });
     }
 
     const options = fido2.generateAssertionOptions({
@@ -405,7 +405,7 @@ router.post("/signinRequest", csrfCheck, async (req, res) => {
        * This optional value controls whether or not the authenticator needs be able to uniquely
        * identify the user interacting with it (via built-in PIN pad, fingerprint scanner, etc...)
        */
-      userVerification
+      userVerification,
     });
     req.session.challenge = options.challenge;
 
@@ -430,20 +430,20 @@ router.post("/signinRequest", csrfCheck, async (req, res) => {
      }
  * }```
  **/
-router.post("/signinResponse", csrfCheck, async (req, res) => {
+router.post('/signinResponse', csrfCheck, async (req, res) => {
   const { body } = req;
   const expectedChallenge = req.session.challenge;
-  const expectedOrigin = getOrigin(req.get("User-Agent"));
+  const expectedOrigin = getOrigin(req.get('User-Agent'));
   const expectedRPID = process.env.HOSTNAME;
 
   // Query the user
-  const user = db.get("users").find({ username: req.session.username }).value();
+  const user = db.get('users').find({ username: req.session.username }).value();
 
   let credential = user.credentials.find((cred) => cred.credId === req.body.id);
 
   try {
     if (!credential) {
-      throw "Authenticating credential not found.";
+      throw 'Authenticating credential not found.';
     }
 
     const verification = fido2.verifyAssertionResponse({
@@ -451,24 +451,24 @@ router.post("/signinResponse", csrfCheck, async (req, res) => {
       expectedChallenge,
       expectedOrigin,
       expectedRPID,
-      authenticator: credential
+      authenticator: credential,
     });
 
     const { verified, authenticatorInfo } = verification;
 
     if (!verified) {
-      throw new Error("User verification failed.");
+      throw new Error('User verification failed.');
     }
 
     credential.prevCounter = authenticatorInfo.counter;
 
-    db.get("users")
+    db.get('users')
       .find({ username: req.session.username })
       .assign(user)
       .write();
 
     delete req.session.challenge;
-    req.session["signed-in"] = "yes";
+    req.session['signed-in'] = 'yes';
     res.json(user);
   } catch (e) {
     delete req.session.challenge;

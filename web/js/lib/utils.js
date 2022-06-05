@@ -105,13 +105,6 @@ export async function showPublicKeyAuthentication() {
     return false;
   }
 
-  const uvpaa =
-    await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-
-  if (!uvpaa) {
-    return false;
-  }
-
   try {
     const res = await api.getUserCredentials();
     if (res.credentials.length === 0) {

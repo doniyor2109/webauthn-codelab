@@ -7,18 +7,8 @@ import { getUserCredentials, unregisterCredential } from './lib/api.js';
 
 const checkDeviceSupport = () => {
   if (window.PublicKeyCredential) {
-    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(
-      (uvpaa) => {
-        const addDeviceButton = document.querySelector('#add-device');
-        if (uvpaa) {
-          addDeviceButton?.classList.remove('hidden');
-        } else {
-          document
-            .querySelector('#uvpa_unavailable')
-            .classList.remove('hidden');
-        }
-      }
-    );
+     const addDeviceButton = document.querySelector('#add-device');
+     addDeviceButton?.classList.remove('hidden');
   } else {
     document.querySelector('#uvpa_unavailable').classList.remove('hidden');
   }
